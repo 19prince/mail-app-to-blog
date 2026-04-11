@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_mail_mass_mailing_form_blog" model="ir.ui.view">
+        <field name="name">mailing.mailing.form.blog</field>
+        <field name="model">mailing.mailing</field>
+        <field name="inherit_id" ref="mass_mailing.view_mail_mass_mailing_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Smart button: link to the created blog post -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_blog_post"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-pencil"
+                        invisible="not blog_post_id">
+                    <span class="o_stat_text">Blog Post</span>
+                </button>
+            </xpath>
+
+            <!-- Publish to Blog button in header, after Duplicate -->
+            <xpath expr="//button[@name='action_duplicate']" position="after">
+                <button name="action_publish_to_blog"
+                        type="object"
+                        class="btn-secondary"
+                        string="Publish to Blog"
+                        invisible="state != 'done' or blog_post_id"
+                        confirm="This will create a draft blog post from this mailing. Continue?"/>
+            </xpath>
+
+            <!-- Blog dropdown in Settings tab -->
+            <xpath expr="//page[@name='settings']//group[1]" position="before">
+                <group string="Blog">
+                    <field name="blog_id" options="{'no_create': True}"/>
+                </group>
+            </xpath>
+
+            <!-- Hidden field for invisibility conditions -->
+            <xpath expr="//div[@name='button_box']" position="before">
+                <field name="blog_post_id" invisible="1"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>
