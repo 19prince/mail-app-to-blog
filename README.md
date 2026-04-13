@@ -1,7 +1,7 @@
 # Mailing to Blog
 
-Publish your Odoo email newsletters as blog posts with a single click.
-
+Publish your Odoo email newsletters as blog posts with a single click - from the [19 Prince](https://www.19prince.com) team.
+ 
 ## Features
 
 - **Publish to Blog** button on sent mailings creates a draft blog post
