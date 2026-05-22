@@ -1,6 +1,6 @@
 import re
 
-from odoo import api, fields, models, _
+from odoo import fields, models, _
 from odoo.exceptions import AccessError, UserError
 from odoo.tools import html_sanitize
 
@@ -20,26 +20,11 @@ class MailingMailing(models.Model):
         copy=False,
         help='The blog post created from this mailing.',
     )
-    tag_ids = fields.Many2many(
-        'blog.post.tag',
-        'mailing_mailing_blog_tag_rel',
-        'mailing_id',
-        'tag_id',
-        string='Blog Tags',
-    )
 
     _sql_constraints = [
         ('blog_post_unique', 'UNIQUE(blog_post_id)',
          'A mailing can only have one blog post.'),
     ]
-
-    @api.onchange('blog_id')
-    def _onchange_blog_id_tags(self):
-        if self.blog_id and not self.tag_ids:
-            tag = self.env['blog.post.tag'].search([('name', '=ilike', 'newsletter')], limit=1)
-            if not tag:
-                tag = self.env['blog.post.tag'].sudo().create({'name': 'Newsletter'})
-            self.tag_ids = tag
 
     def action_publish_to_blog(self):
         self.ensure_one()
@@ -52,20 +37,12 @@ class MailingMailing(models.Model):
         if self.blog_post_id:
             raise UserError(_('A blog post has already been created from this mailing.'))
 
-        newsletter_tag = self.env['blog.post.tag'].sudo().search(
-            [('name', '=ilike', 'newsletter')], limit=1
-        )
-        if not newsletter_tag:
-            newsletter_tag = self.env['blog.post.tag'].sudo().create({'name': 'Newsletter'})
-        final_tags = self.tag_ids | newsletter_tag
-
         blog_post = self.env['blog.post'].with_user(self.env.user).sudo().create({
             'name': self.subject,
             'blog_id': self.blog_id.id,
             'content': self._prepare_blog_content(),
             'website_published': False,
             'author_id': self.env.user.partner_id.id,
-            'tag_ids': [(6, 0, final_tags.ids)],
         })
         self.blog_post_id = blog_post.id
 

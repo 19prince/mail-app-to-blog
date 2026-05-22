@@ -32,7 +32,6 @@
             <xpath expr="//page[@name='settings']//group[1]" position="before">
                 <group string="Blog">
                     <field name="blog_id" options="{'no_create': True}"/>
-                    <field name="tag_ids" widget="many2many_tags"/>
                 </group>
             </xpath>
 
