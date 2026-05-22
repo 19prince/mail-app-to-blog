@@ -6,6 +6,8 @@ Publish your Odoo email newsletters as blog posts with a single click - from the
 
 - **Publish to Blog** button on sent mailings creates a draft blog post
 - **Choose your blog** per mailing via a dropdown in the Settings tab
+- **Newsletter tag** auto-applied to every published blog post; editable per mailing in the Settings tab
+- **Unsubscribe links stripped** automatically from blog post content
 - Posts are created as **unpublished drafts** for review before going live
 - **Smart button** links back from the mailing to its blog post
 - **Duplicate-safe** — duplicating a mailing does not carry over the blog post link
@@ -26,10 +28,13 @@ Publish your Odoo email newsletters as blog posts with a single click - from the
 
 1. Create and send a mailing as usual in Email Marketing
 2. After the mailing is sent, open it and go to the **Settings** tab
-3. Select a target **Blog** from the dropdown
-4. Click the **Publish to Blog** button in the header
-5. A draft blog post is created — review and publish it when ready
-6. The **Blog Post** smart button links directly to the created post
+3. Select a target **Blog** from the dropdown — a **Newsletter** tag is automatically added to the **Blog Tags** field
+4. Optionally add or remove tags in the **Blog Tags** field to control how the post is tagged on the site
+5. Click the **Publish to Blog** button in the header
+6. A draft blog post is created — review and publish it when ready
+7. The **Blog Post** smart button links directly to the created post
+
+**Note:** Unsubscribe links from the email are automatically stripped from the blog post content, as they are email-specific and would not function for web readers. The **Newsletter** tag is always applied to the blog post regardless of what is set in the Blog Tags field.
 
 ## Configuration
 
