@@ -13,6 +13,7 @@ a draft blog post from the newsletter content.
     'license': 'LGPL-3',
     'depends': ['mass_mailing', 'website_blog'],
     'data': [
+        'security/ir.model.access.csv',
         'views/mailing_mailing_views.xml',
     ],
     'images': ['static/description/icon.png'],
