@@ -1,6 +1,6 @@
 {
     'name': 'Mailing to Blog',
-    'version': '18.0.1.0.0',
+    'version': '19.0.1.0.0',
     'category': 'Marketing/Email Marketing',
     'summary': 'Publish sent newsletters as draft blog posts',
     'description': """

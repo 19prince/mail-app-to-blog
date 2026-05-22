@@ -14,7 +14,7 @@ Publish your Odoo email newsletters as blog posts with a single click - from the
 
 ## Requirements
 
-- Odoo 18.0
+- Odoo 18.0 or 19.0 — install from the branch matching your version (`18.0` or `19.0`)
 - `mass_mailing` (Email Marketing) module installed
 - `website_blog` (Blog) module installed
 
