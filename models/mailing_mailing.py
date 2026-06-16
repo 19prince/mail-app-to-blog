@@ -90,7 +90,56 @@ class MailingMailing(models.Model):
     def _prepare_blog_content(self):
         self.ensure_one()
         content = html_sanitize(self.body_html or '')
+        blocks = self._split_into_blocks(content)
+        if blocks:
+            return blocks
         return self._strip_unsubscribe_links(content)
+
+    def _split_into_blocks(self, html_content):
+        if not html_content:
+            return None
+        from lxml import html as lxml_html
+        from lxml import etree
+
+        FOOTER_CLASSES = {'s_footer_social', 'o_mail_block_footer_social'}
+
+        try:
+            root = lxml_html.fromstring(html_content)
+        except etree.ParserError:
+            return None
+
+        snippet_tables = root.xpath('//table[@data-snippet]')
+        if not snippet_tables:
+            return None
+
+        content_snippets = [
+            t for t in snippet_tables
+            if not FOOTER_CLASSES & set(t.get('class', '').split())
+        ]
+        if not content_snippets:
+            return None
+
+        groups = []
+        current = []
+        for table in content_snippets:
+            if table.get('data-snippet') == 's_title' and current:
+                groups.append(current)
+                current = []
+            current.append(table)
+        if current:
+            groups.append(current)
+
+        sections = []
+        for group in groups:
+            parts = []
+            for table in group:
+                containers = table.xpath('.//div[contains(@class,"container")]')
+                node = containers[0] if containers else table
+                parts.append(lxml_html.tostring(node, encoding='unicode'))
+            if parts:
+                sections.append('<section>' + ''.join(parts) + '</section>')
+
+        return ''.join(sections) if sections else None
 
     def _strip_unsubscribe_links(self, html_content):
         """Remove <a> tags with unsubscribe hrefs — email-specific, broken on the web."""
