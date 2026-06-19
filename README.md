@@ -36,6 +36,32 @@ Publish your Odoo email newsletters as blog posts with a single click - from the
 
 **Note:** Unsubscribe links from the email are automatically stripped from the blog post content, as they are email-specific and would not function for web readers. The **Newsletter** tag is always applied to the blog post regardless of what is set in the Blog Tags field.
 
+## How content is split into sections
+
+When publishing, the module converts the email HTML into a set of `<section>` blocks that are individually editable and draggable in Odoo's website editor.
+
+**What triggers a section break:**
+
+1. **Section title snippets (`s_title`)** — the green "Headline" blocks used in the email builder (TL;DR, TOP NEWS, etc.) each start a new section that groups the title with its immediately following content.
+
+2. **Headline elements inside text blocks** — any `<h2>`–`<h6>` heading tag inside a text block (`s_text_block`) starts a new section. In practice this means every article heading you insert with the **Heading** tool in a text block becomes its own independently draggable blog section.
+
+**Example structure:**
+
+| Email                                  | Blog sections produced           |
+|----------------------------------------|----------------------------------|
+| Header image / logo block              | Section 1: header                |
+| `s_title` "TL;DR" + bullet text block  | Section 2: TL;DR + bullets       |
+| `s_title` "TOP NEWS" + text block with headings: | |
+| &nbsp;&nbsp;intro paragraph            | Section 3: TOP NEWS intro        |
+| &nbsp;&nbsp;`<h5>` Article One         | Section 4: Article One           |
+| &nbsp;&nbsp;`<h5>` Article Two         | Section 5: Article Two           |
+
+**What is not split:**
+- Headings *inside* `s_title` or `s_picture` snippets (they are structural, not article headings)
+- Footer snippets (`s_footer_social`) — stripped entirely along with unsubscribe links
+- Plain emails with no `data-snippet` tables — cleaned with unsubscribe-link stripping only, no section wrapping
+
 ## Configuration
 
 No additional configuration is required. The module adds fields directly to the mailing form.
