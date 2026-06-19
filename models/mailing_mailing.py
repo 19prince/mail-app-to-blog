@@ -101,7 +101,8 @@ class MailingMailing(models.Model):
         from lxml import html as lxml_html
         from lxml import etree
 
-        FOOTER_CLASSES = {'s_footer_social', 'o_mail_block_footer_social'}
+        FOOTER_CLASSES = {'s_footer_social', 'o_mail_block_footer_social', 's_mail_block_footer_social'}
+        HEADLINE_TAGS = {'h2', 'h3', 'h4', 'h5', 'h6'}
 
         try:
             root = lxml_html.fromstring(html_content)
@@ -131,13 +132,40 @@ class MailingMailing(models.Model):
 
         sections = []
         for group in groups:
-            parts = []
+            # Atomic snippets (non-text-block: s_picture, s_title, etc.) stay together.
+            # s_text_block children are split at headline tags.
+            atomic_html = ''
+            text_block_children = []
             for table in group:
                 containers = table.xpath('.//div[contains(@class,"container")]')
                 node = containers[0] if containers else table
-                parts.append(lxml_html.tostring(node, encoding='unicode'))
-            if parts:
-                sections.append('<section>' + ''.join(parts) + '</section>')
+                if table.get('data-snippet') == 's_text_block':
+                    text_block_children.extend(list(node))
+                else:
+                    atomic_html += lxml_html.tostring(node, encoding='unicode')
+
+            if not text_block_children:
+                if atomic_html.strip():
+                    sections.append('<section>' + atomic_html + '</section>')
+                continue
+
+            # Split text-block children at every headline tag.
+            chunks = []
+            chunk = []
+            for child in text_block_children:
+                if isinstance(child.tag, str) and child.tag in HEADLINE_TAGS and chunk:
+                    chunks.append(chunk)
+                    chunk = []
+                chunk.append(child)
+            if chunk:
+                chunks.append(chunk)
+
+            for i, chunk in enumerate(chunks):
+                parts = ''.join(lxml_html.tostring(el, encoding='unicode') for el in chunk)
+                if not parts.strip():
+                    continue
+                prefix = atomic_html if i == 0 else ''
+                sections.append('<section>' + prefix + parts + '</section>')
 
         return ''.join(sections) if sections else None
 

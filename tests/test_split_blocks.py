@@ -127,6 +127,67 @@ PLAIN_EMAIL = """
 </div>
 """
 
+# Real-world structure: one giant s_text_block with h5 article headings inside TOP NEWS
+HEADLINE_SPLIT_EMAIL = """
+<table class="o_layout"><tbody><tr><td>
+<table class="o_mail_wrapper"><tbody><tr><td>
+<table><tbody><tr><td>
+<div class="o_stacking_wrapper">
+<table class="o_stacking_wrapper"><tbody><tr>
+<td class="o_mail_wrapper_td o_editable">
+
+<table data-snippet="s_picture" class="s_picture o_mail_snippet_general">
+  <tbody><tr><td><table><tbody><tr><td>
+    <div class="container s_allow_columns"><p>June 14, 2026</p><h2>Newsletter Title</h2></div>
+  </td></tr></tbody></table></td></tr></tbody>
+</table>
+
+<table data-snippet="s_title" class="s_title o_mail_snippet_general">
+  <tbody><tr><td><table><tbody><tr><td>
+    <div class="container s_allow_columns"><h3>TL;DR</h3></div>
+  </td></tr></tbody></table></td></tr></tbody>
+</table>
+
+<table data-snippet="s_text_block" class="s_text_block o_mail_snippet_general">
+  <tbody><tr><td><table><tbody><tr><td>
+    <div class="container s_allow_columns"><ul><li>Bullet one</li><li>Bullet two</li></ul></div>
+  </td></tr></tbody></table></td></tr></tbody>
+</table>
+
+<table data-snippet="s_title" class="s_title o_mail_snippet_general">
+  <tbody><tr><td><table><tbody><tr><td>
+    <div class="container s_allow_columns"><h3>TOP NEWS</h3></div>
+  </td></tr></tbody></table></td></tr></tbody>
+</table>
+
+<table data-snippet="s_text_block" class="s_text_block o_mail_snippet_general">
+  <tbody><tr><td><table><tbody><tr><td>
+    <div class="container s_allow_columns">
+      <p>Hey there, intro paragraph.</p>
+      <h5>Article One: The Scorecard</h5>
+      <p>Article one content.</p>
+      <h5>Article Two: News</h5>
+      <p>Article two content.</p>
+      <h5>Article Three: Quick Hits</h5>
+      <p>Article three content.</p>
+    </div>
+  </td></tr></tbody></table></td></tr></tbody>
+</table>
+
+<table class="s_footer_social o_mail_block_footer_social o_mail_snippet_general">
+  <tbody><tr><td>
+    <a href="/mailing/28/confirm_unsubscribe?document_id=6">Unsubscribe</a>
+    | <a href="/contact">Contact</a>
+  </td></tr></tbody>
+</table>
+
+</td></tr></tbody></table>
+</div>
+</td></tr></tbody></table>
+</td></tr></tbody></table>
+</td></tr></tbody></table>
+"""
+
 
 # ---------------------------------------------------------------------------
 # Tests
@@ -188,6 +249,31 @@ class TestSplitIntoBlocks(unittest.TestCase):
 
     def test_none_returns_none(self):
         self.assertIsNone(self._call(None))
+
+    def test_h5_headlines_split_text_block_into_sections(self):
+        # 1 header + 1 TL;DR + 1 TOP-NEWS-intro + 3 article headings = 6 sections
+        result = self._call(HEADLINE_SPLIT_EMAIL)
+        self.assertIsNotNone(result)
+        self.assertEqual(
+            result.count('<section>'), 6,
+            f"Expected 6 sections, got:\n{result}"
+        )
+
+    def test_h5_headlines_content_preserved(self):
+        result = self._call(HEADLINE_SPLIT_EMAIL)
+        self.assertIsNotNone(result)
+        for text in ('Hey there', 'Article One', 'Article Two', 'Article Three',
+                     'article one content', 'article two content', 'TL;DR', 'TOP NEWS'):
+            self.assertIn(text.lower(), result.lower(), f"Missing: {text!r}")
+
+    def test_h2_in_non_text_block_does_not_split(self):
+        # The h2 inside s_picture and h3 inside s_title must NOT create extra sections.
+        # STANDARD_EMAIL has h2 in s_picture and h3 in s_title — should still be 3.
+        result = self._call(STANDARD_EMAIL)
+        self.assertEqual(
+            result.count('<section>'), 3,
+            "Headings in s_picture/s_title must not trigger extra splits"
+        )
 
 
 class TestPrepareBlogContent(unittest.TestCase):
